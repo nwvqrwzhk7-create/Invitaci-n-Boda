@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <title>Mary & Edu - Confirmación</title>
+    <style>
+        body { margin: 0; background: #fdfaf8; color: #4a3728; text-align: center; font-family: -apple-system, sans-serif; }
+        .flower-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3; background: radial-gradient(circle at 0% 0%, #f8bbd0, transparent 45%), radial-gradient(circle at 100% 100%, #f48fb1, transparent 45%); filter: blur(40px); }
+        .container { max-width: 420px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box; }
+        .card { background: rgba(255, 255, 255, 0.9); padding: 30px 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(161, 136, 117, 0.1); border: 1px solid white; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .cursive { font-family: 'Dancing Script', cursive; font-size: 45px; margin: 10px 0; }
+        .serif { font-family: 'Cormorant Garamond', serif; text-transform: uppercase; letter-spacing: 3px; font-size: 13px; color: #a18875; margin-bottom: 25px; font-weight: 600; }
+        input, select { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(216, 184, 154, 0.3); background: white; font-size: 16px; box-sizing: border-box; outline: none; color: #4a3728; }
+        button { width: 100%; padding: 18px; border: none; border-radius: 35px; background: linear-gradient(135deg, #e1cbb6 0%, #d8b89a 100%); color: white; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="flower-bg"></div>
+    <div class="container">
+        <h1 class="cursive">Mary & Edu</h1>
+        <p class="serif">Confirmación de Asistencia</p>
+        
+        <div class="card" id="form-container">
+            <form id="confirmation-form">
+                <input type="text" id="nombreInput" name="Nombre Completo" placeholder="Nombre completo" required>
+                
+                <select id="asistenciaSelect" name="¿Nos acompañarás?" required>
+                    <option value="" disabled selected>¿Nos acompañarás?</option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+
+                <select id="alcoholSelect" name="¿Tomarás Alcohol?" required>
+                    <option value="" disabled selected>¿Tomarás Alcohol?</option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+
+                <select id="menuSelect" name="Preferencia de Menú" required>
+                    <option value="" disabled selected>Preferencia de Menú</option>
+                    <option value="Cerdo">Cerdo</option>
+                    <option value="Pollo">Pollo</option>
+                    <option value="Vegetariano">Vegetariano</option>
+                </select>
+
+                <button type="submit" id="submit-btn">Confirmar Asistencia</button>
+            </form>
+
+            <div id="success-msg" style="display:none; padding: 20px 0;">
+                <p class="cursive" style="font-size: 35px;">¡Muchas Gracias!</p>
+                <p style="color: #a18875;">Tu respuesta ha sido guardada.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('confirmation-form');
+        form.addEventListener("submit", e => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            const datosParaExcel = {
+                "Nombre Completo": document.getElementById('nombreInput').value,
+                "¿Nos acompañarás?": document.getElementById('asistenciaSelect').value,
+                "¿Tomarás Alcohol?": document.getElementById('alcoholSelect').value,
+                "Preferencia de Menú": document.getElementById('menuSelect').value
+            };
+
+            fetch('https://sheetdb.io/api/v1/31ycdr8qqihq5', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: [datosParaExcel] }),
+            })
+            .then(response => response.json())
+            .then((data) => {
+                console.log('Enviado:', data);
+                document.getElementById('confirmation-form').style.display = 'none';
+                document.getElementById('success-msg').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error. Inténtalo de nuevo.');
+                btn.innerText = "Confirmar Asistencia";
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
